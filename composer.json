@@ -1,0 +1,29 @@
+{
+    "name": "wyrihaximus/react-async-interop-loop",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Cees-Jan Kiewiet",
+            "email": "ceesjank@gmail.com"
+        }
+    ],
+    "require": {
+        "php": "^7.0 || ^5.5",
+        "react/event-loop": "^0.4.2",
+        "async-interop/event-loop": "^0.3"
+    },
+    "require-dev": {
+        "async-interop/event-loop-test": "dev-master",
+        "phpunit/phpunit": "^5.0 || ^4.8"
+    },
+    "autoload": {
+        "psr-4": {
+            "WyriHaximus\\React\\AsyncInteropLoop\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "WyriHaximus\\React\\Tests\\AsyncInteropLoop\\": "tests/"
+        }
+    }
+}
