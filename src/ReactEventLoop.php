@@ -22,7 +22,17 @@ class ReactEventLoop extends Driver
     /**
      * @var array
      */
+    private $watchers = [];
+
+    /**
+     * @var array
+     */
     private $activeWatchers = [];
+
+    /**
+     * @var array
+     */
+    private $defers = [];
 
     /**
      * ReactEventLoop constructor.
@@ -56,18 +66,40 @@ class ReactEventLoop extends Driver
     {
         $watcherId = $this->nextId++;
         $this->activeWatchers[$watcherId] = $watcherId;
+        $this->watchers[$watcherId] = $watcherId;
 
-        $this->loop->futureTick(function () use ($callback, $data, $watcherId) {
-            if (!isset($this->activeWatchers)) {
-                return;
-            }
+        if (count($this->defers) === 0) {
+            $this->setDeferFutureTick();
+        }
 
-            $callback($data);
-
-            unset($this->activeWatchers[$watcherId]);
-        });
+        $this->defers[$watcherId] = [
+            'callback' => $callback,
+            'data' => $data,
+        ];
 
         return $watcherId;
+    }
+
+    protected function setDeferFutureTick()
+    {
+        $this->loop->futureTick(function () {
+            foreach ($this->defers as $watcherId => $defered) {
+                if (!isset($this->activeWatchers[$watcherId])) {
+                    continue;
+                }
+
+                $callback = $defered['callback'];
+                $data = $defered['data'];
+
+                $callback($data);
+
+                unset(
+                    $this->activeWatchers[$watcherId],
+                    $this->watchers[$watcherId],
+                    $this->defers[$watcherId]
+                );
+            }
+        });
     }
 
     /**
@@ -75,6 +107,7 @@ class ReactEventLoop extends Driver
      */
     public function delay($delay, callable $callback, $data = null)
     {
+        throw new \Exception();
         $watcherId = $this->nextId++;
 
         $this->activeWatchers[$watcherId] = $this->loop->addTimer($delay, function () use ($callback, $data, $watcherId) {
@@ -127,7 +160,11 @@ class ReactEventLoop extends Driver
      */
     public function enable($watcherId)
     {
-        throw new \Exception();
+        $this->activeWatchers[$watcherId] = $watcherId;
+
+        if (key_exists($watcherId, $this->defers)) {
+            $this->setDeferFutureTick();
+        }
     }
 
     /**
@@ -135,7 +172,7 @@ class ReactEventLoop extends Driver
      */
     public function disable($watcherId)
     {
-        throw new \Exception();
+        unset($this->activeWatchers[$watcherId]);
     }
 
     /**
@@ -143,7 +180,11 @@ class ReactEventLoop extends Driver
      */
     public function cancel($watcherId)
     {
-        throw new \Exception();
+        unset($this->activeWatchers[$watcherId]);
+
+        if (key_exists($watcherId, $this->defers)) {
+            unset($this->defers[$watcherId]);
+        }
     }
 
     /**
@@ -151,7 +192,12 @@ class ReactEventLoop extends Driver
      */
     public function reference($watcherId)
     {
-        throw new \Exception();
+        $this->activeWatchers[$watcherId] = $watcherId;
+        $this->watchers[$watcherId] = $watcherId;
+
+        if (in_array($watcherId, $this->defers)) {
+            $this->setDeferFutureTick();
+        }
     }
 
     /**
@@ -159,7 +205,10 @@ class ReactEventLoop extends Driver
      */
     public function unreference($watcherId)
     {
-        throw new \Exception();
+        unset(
+            $this->activeWatchers[$watcherId],
+            $this->watchers[$watcherId]
+        );
     }
 
     /**
