@@ -6,6 +6,7 @@ use Interop\Async\Loop\Driver;
 use Interop\Async\Loop\InvalidWatcherException;
 use Interop\Async\Loop\UnsupportedFeatureException;
 use React\EventLoop\LoopInterface;
+use React\EventLoop\Timer\TimerInterface;
 
 class ReactEventLoop extends Driver
 {
@@ -107,17 +108,17 @@ class ReactEventLoop extends Driver
      */
     public function delay($delay, callable $callback, $data = null)
     {
-        throw new \Exception();
         $watcherId = $this->nextId++;
 
-        $this->activeWatchers[$watcherId] = $this->loop->addTimer($delay, function () use ($callback, $data, $watcherId) {
-            if (!isset($this->activeWatchers)) {
-                return;
+        $this->activeWatchers[$watcherId] = $this->loop->addTimer($delay / 1000, function () use ($callback, $data, $watcherId) {
+            if (isset($this->activeWatchers)) {
+                $callback($data);
             }
 
-            $callback($data);
-
-            unset($this->activeWatchers[$watcherId]);
+            unset(
+                $this->activeWatchers[$watcherId],
+                $this->watchers[$watcherId]
+            );
         });
 
         return $watcherId;
@@ -128,7 +129,26 @@ class ReactEventLoop extends Driver
      */
     public function repeat($interval, callable $callback, $data = null)
     {
-        throw new \Exception();
+        $watcherId = $this->nextId++;
+
+        $this->activeWatchers[$watcherId] = $this->loop->addPeriodicTimer($interval / 1000, function (TimerInterface $timer) use ($callback, $data, $watcherId) {
+            if (isset($this->activeWatchers[$watcherId])) {
+                $callback($data);
+            }
+
+            if (isset($this->watchers[$watcherId])) {
+
+            }
+
+            $timer->cancel();
+
+            unset(
+                $this->activeWatchers[$watcherId],
+                $this->watchers[$watcherId]
+            );
+        });
+
+        return $watcherId;
     }
 
     /**
@@ -160,6 +180,10 @@ class ReactEventLoop extends Driver
      */
     public function enable($watcherId)
     {
+        if (!isset($this->watchers[$watcherId])) {
+            throw new InvalidWatcherException();
+        }
+
         $this->activeWatchers[$watcherId] = $watcherId;
 
         if (key_exists($watcherId, $this->defers)) {
@@ -192,6 +216,10 @@ class ReactEventLoop extends Driver
      */
     public function reference($watcherId)
     {
+        if (!isset($this->watchers[$watcherId])) {
+            throw new InvalidWatcherException();
+        }
+
         $this->activeWatchers[$watcherId] = $watcherId;
         $this->watchers[$watcherId] = $watcherId;
 
