@@ -36,6 +36,16 @@ class ReactEventLoop extends Driver
     private $defers = [];
 
     /**
+     * @var array
+     */
+    private $delayed = [];
+
+    /**
+     * @var array
+     */
+    private $repeats = [];
+
+    /**
      * ReactEventLoop constructor.
      * @param LoopInterface $loop
      */
@@ -110,14 +120,17 @@ class ReactEventLoop extends Driver
     {
         $watcherId = $this->nextId++;
 
-        $this->activeWatchers[$watcherId] = $this->loop->addTimer($delay / 1000, function () use ($callback, $data, $watcherId) {
+        $this->activeWatchers[$watcherId] = $watcherId;
+        $this->watchers[$watcherId] = $watcherId;
+        $this->delayed[$watcherId] = $this->loop->addTimer($delay / 1000, function () use ($callback, $data, $watcherId) {
             if (isset($this->activeWatchers)) {
                 $callback($data);
             }
 
             unset(
                 $this->activeWatchers[$watcherId],
-                $this->watchers[$watcherId]
+                $this->watchers[$watcherId],
+                $this->delayed[$watcherId]
             );
         });
 
@@ -131,7 +144,9 @@ class ReactEventLoop extends Driver
     {
         $watcherId = $this->nextId++;
 
-        $this->activeWatchers[$watcherId] = $this->loop->addPeriodicTimer($interval / 1000, function (TimerInterface $timer) use ($callback, $data, $watcherId) {
+        $this->activeWatchers[$watcherId] = $watcherId;
+        $this->watchers[$watcherId] = $watcherId;
+        $this->repeats[$watcherId] = $this->loop->addPeriodicTimer($interval / 1000, function (TimerInterface $timer) use ($callback, $data, $watcherId) {
             if (isset($this->activeWatchers[$watcherId])) {
                 $callback($data);
             }
@@ -144,7 +159,8 @@ class ReactEventLoop extends Driver
 
             unset(
                 $this->activeWatchers[$watcherId],
-                $this->watchers[$watcherId]
+                $this->watchers[$watcherId],
+                $this->repeats[$watcherId]
             );
         });
 
@@ -204,7 +220,10 @@ class ReactEventLoop extends Driver
      */
     public function cancel($watcherId)
     {
-        unset($this->activeWatchers[$watcherId]);
+        unset(
+            $this->activeWatchers[$watcherId],
+            $this->watchers[$watcherId]
+        );
 
         if (key_exists($watcherId, $this->defers)) {
             unset($this->defers[$watcherId]);
@@ -252,7 +271,27 @@ class ReactEventLoop extends Driver
      */
     public function info()
     {
-        throw new \Exception();
+        return [
+            'defer' => [
+                'enabled' => count(array_intersect_key($this->defers, $this->activeWatchers)),
+                'disabled' => count(array_diff_key($this->defers, $this->activeWatchers)),
+            ],
+            'delay' => [
+                'enabled' => count(array_intersect_key($this->delayed, $this->activeWatchers)),
+                'disabled' => count(array_diff_key($this->delayed, $this->activeWatchers)),
+            ],
+            'repeat' => [
+                'enabled' => count(array_intersect_key($this->repeats, $this->activeWatchers)),
+                'disabled' => count(array_diff_key($this->repeats, $this->activeWatchers)),
+            ],
+            'on_readable' => ['enabled' => 0, 'disabled' => 0],
+            'on_writable' => ['enabled' => 0, 'disabled' => 0],
+            'on_signal' => ['enabled' => 0, 'disabled' => 0],
+            'watchers' => [
+                'referenced' => count(array_intersect_key($this->watchers, $this->activeWatchers)),
+                'unreferenced' => count(array_diff_key($this->watchers, $this->activeWatchers)),
+            ],
+        ];
     }
 
     /**
@@ -260,7 +299,7 @@ class ReactEventLoop extends Driver
      */
     public function getHandle()
     {
-        throw new \Exception();
+        return;
     }
 
 }
