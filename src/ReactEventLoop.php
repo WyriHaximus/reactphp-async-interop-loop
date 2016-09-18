@@ -121,6 +121,8 @@ class ReactEventLoop extends Driver
 
                 try {
                     $callback($watcherId, $data);
+                } catch (\Throwable $e) {
+                    $this->errorHandler($e);
                 } catch (\Exception $e) {
                     $this->errorHandler($e);
                 }
@@ -156,6 +158,8 @@ class ReactEventLoop extends Driver
 
                 try {
                     $callback($watcher->id, $data);
+                } catch (\Throwable $e) {
+                    $this->errorHandler($e);
                 } catch (\Exception $e) {
                     $this->errorHandler($e);
                 }
@@ -198,6 +202,8 @@ class ReactEventLoop extends Driver
 
                 try {
                     $callback($watcher->id, $data);
+                } catch (\Throwable $e) {
+                    $this->errorHandler($e);
                 } catch (\Exception $e) {
                     $this->errorHandler($e);
                 }
