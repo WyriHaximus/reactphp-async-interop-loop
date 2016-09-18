@@ -16,6 +16,11 @@ class ReactEventLoop extends Driver
     private $loop;
 
     /**
+     * @var bool
+     */
+    private $running = false;
+
+    /**
      * @var string
      */
     private $nextId = 'a';
@@ -24,11 +29,6 @@ class ReactEventLoop extends Driver
      * @var array
      */
     private $watchers = [];
-
-    /**
-     * @var array
-     */
-    private $activeWatchers = [];
 
     /**
      * @var array
@@ -59,7 +59,9 @@ class ReactEventLoop extends Driver
      */
     public function run()
     {
+        $this->running = true;
         $this->loop->run();
+        $this->running = false;
     }
 
     /**
@@ -68,6 +70,7 @@ class ReactEventLoop extends Driver
     public function stop()
     {
         $this->loop->stop();
+        $this->running = false;
     }
 
     /**
@@ -75,40 +78,39 @@ class ReactEventLoop extends Driver
      */
     public function defer(callable $callback, $data = null)
     {
-        $watcherId = $this->nextId++;
-        $this->activeWatchers[$watcherId] = $watcherId;
-        $this->watchers[$watcherId] = $watcherId;
+        $watcher = new Watcher();
+        $watcher->id = $this->nextId++;
+        $watcher->type = Watcher::DEFER;
+        $watcher->callback = $callback;
+        $watcher->data = $data;
+        $this->watchers[$watcher->id] = $watcher;
 
         if (count($this->defers) === 0) {
             $this->setDeferFutureTick();
         }
 
-        $this->defers[$watcherId] = [
-            'callback' => $callback,
-            'data' => $data,
-        ];
+        $this->defers[] = $watcher->id;
 
-        return $watcherId;
+        return $watcher->id;
     }
 
     protected function setDeferFutureTick()
     {
         $this->loop->futureTick(function () {
-            foreach ($this->defers as $watcherId => $defered) {
-                if (!isset($this->activeWatchers[$watcherId])) {
+            foreach ($this->defers as $watcherId) {
+                if (!isset($this->watchers[$watcherId]) || !$this->watchers[$watcherId]->enabled || !$this->watchers[$watcherId]->referenced) {
                     continue;
                 }
 
-                $callback = $defered['callback'];
-                $data = $defered['data'];
-
-                $callback($data);
+                $callback = $this->watchers[$watcherId]->callback;
+                $data = $this->watchers[$watcherId]->data;
 
                 unset(
-                    $this->activeWatchers[$watcherId],
                     $this->watchers[$watcherId],
                     $this->defers[$watcherId]
                 );
+
+                $callback($watcherId, $data);
             }
         });
     }
@@ -118,23 +120,37 @@ class ReactEventLoop extends Driver
      */
     public function delay($delay, callable $callback, $data = null)
     {
-        $watcherId = $this->nextId++;
+        $watcher = new Watcher();
+        $watcher->id = $this->nextId++;
+        $watcher->type = Watcher::DELAY;
+        $watcher->callback = $callback;
+        $watcher->data = $data;
+        $this->watchers[$watcher->id] = $watcher;
 
-        $this->activeWatchers[$watcherId] = $watcherId;
-        $this->watchers[$watcherId] = $watcherId;
-        $this->delayed[$watcherId] = $this->loop->addTimer($delay / 1000, function () use ($callback, $data, $watcherId) {
-            if (isset($this->activeWatchers)) {
-                $callback($data);
+        $this->delayed[$watcher->id] = $this->loop->addTimer($delay / 1000, function (TimerInterface $timer) use ($watcher) {
+            if (!isset($this->watchers[$watcher->id])) {
+                $timer->cancel();
+
+                unset(
+                    $this->watchers[$watcher->id],
+                    $this->delayed[$watcher->id]
+                );
+            }
+
+            if (isset($this->watchers[$watcher->id]) && $this->watchers[$watcher->id]->enabled && $this->watchers[$watcher->id]->referenced) {
+                $callback = $this->watchers[$watcher->id]->callback;
+                $data = $this->watchers[$watcher->id]->data;
+
+                $callback($watcher->id, $data);
             }
 
             unset(
-                $this->activeWatchers[$watcherId],
-                $this->watchers[$watcherId],
-                $this->delayed[$watcherId]
+                $this->watchers[$watcher->id],
+                $this->delayed[$watcher->id]
             );
         });
 
-        return $watcherId;
+        return $watcher->id;
     }
 
     /**
@@ -142,29 +158,32 @@ class ReactEventLoop extends Driver
      */
     public function repeat($interval, callable $callback, $data = null)
     {
-        $watcherId = $this->nextId++;
+        $watcher = new Watcher();
+        $watcher->id = $this->nextId++;
+        $watcher->type = Watcher::REPEAT;
+        $watcher->callback = $callback;
+        $watcher->data = $data;
+        $this->watchers[$watcher->id] = $watcher;
 
-        $this->activeWatchers[$watcherId] = $watcherId;
-        $this->watchers[$watcherId] = $watcherId;
-        $this->repeats[$watcherId] = $this->loop->addPeriodicTimer($interval / 1000, function (TimerInterface $timer) use ($callback, $data, $watcherId) {
-            if (isset($this->activeWatchers[$watcherId])) {
-                $callback($data);
+        $this->repeats[$watcher->id] = $this->loop->addPeriodicTimer($interval / 1000, function (TimerInterface $timer) use ($watcher) {
+            if (!isset($this->watchers[$watcher->id])) {
+                $timer->cancel();
+
+                unset(
+                    $this->watchers[$watcher->id],
+                    $this->delayed[$watcher->id]
+                );
             }
 
-            if (isset($this->watchers[$watcherId])) {
+            if ($this->watchers[$watcher->id]->enabled && $this->watchers[$watcher->id]->referenced) {
+                $callback = $this->watchers[$watcher->id]->callback;
+                $data = $this->watchers[$watcher->id]->data;
 
+                $callback($watcher->id, $data);
             }
-
-            $timer->cancel();
-
-            unset(
-                $this->activeWatchers[$watcherId],
-                $this->watchers[$watcherId],
-                $this->repeats[$watcherId]
-            );
         });
 
-        return $watcherId;
+        return $watcher->id;
     }
 
     /**
@@ -200,9 +219,9 @@ class ReactEventLoop extends Driver
             throw new InvalidWatcherException();
         }
 
-        $this->activeWatchers[$watcherId] = $watcherId;
+        $this->watchers[$watcherId]->enabled = true;
 
-        if (key_exists($watcherId, $this->defers)) {
+        if (in_array($watcherId, $this->defers)) {
             $this->setDeferFutureTick();
         }
     }
@@ -212,7 +231,11 @@ class ReactEventLoop extends Driver
      */
     public function disable($watcherId)
     {
-        unset($this->activeWatchers[$watcherId]);
+        if (!isset($this->watchers[$watcherId])) {
+            return;
+        }
+
+        $this->watchers[$watcherId]->enabled = false;
     }
 
     /**
@@ -220,13 +243,10 @@ class ReactEventLoop extends Driver
      */
     public function cancel($watcherId)
     {
-        unset(
-            $this->activeWatchers[$watcherId],
-            $this->watchers[$watcherId]
-        );
+        unset($this->watchers[$watcherId]);
 
-        if (key_exists($watcherId, $this->defers)) {
-            unset($this->defers[$watcherId]);
+        if (isset($this->repeats[$watcherId])) {
+            $this->repeats[$watcherId]->cancel();
         }
     }
 
@@ -239,8 +259,7 @@ class ReactEventLoop extends Driver
             throw new InvalidWatcherException();
         }
 
-        $this->activeWatchers[$watcherId] = $watcherId;
-        $this->watchers[$watcherId] = $watcherId;
+        $this->watchers[$watcherId]->referenced = true;
 
         if (in_array($watcherId, $this->defers)) {
             $this->setDeferFutureTick();
@@ -252,10 +271,18 @@ class ReactEventLoop extends Driver
      */
     public function unreference($watcherId)
     {
-        unset(
-            $this->activeWatchers[$watcherId],
-            $this->watchers[$watcherId]
-        );
+        if (!isset($this->watchers[$watcherId])) {
+            throw new InvalidWatcherException();
+        }
+
+        $this->watchers[$watcherId]->referenced = false;
+
+        if (isset($this->delayed[$watcherId])) {
+            $this->delayed[$watcherId]->cancel();
+        }
+        if (isset($this->repeats[$watcherId])) {
+            $this->repeats[$watcherId]->cancel();
+        }
     }
 
     /**
@@ -271,26 +298,50 @@ class ReactEventLoop extends Driver
      */
     public function info()
     {
+        $watchers = [
+            'referenced'   => 0,
+            'unreferenced' => 0,
+        ];
+
+        $defer = $delay = $repeat = $onReadable = $onWritable = $onSignal = [
+            'enabled'  => 0,
+            'disabled' => 0,
+        ];
+
+        foreach ($this->watchers as $watcher) {
+            switch ($watcher->type) {
+                case Watcher::READABLE: $array = &$onReadable; break;
+                case Watcher::WRITABLE: $array = &$onWritable; break;
+                case Watcher::SIGNAL:   $array = &$onSignal; break;
+                case Watcher::DEFER:    $array = &$defer; break;
+                case Watcher::DELAY:    $array = &$delay; break;
+                case Watcher::REPEAT:   $array = &$repeat; break;
+
+                default: throw new \DomainException('Unknown watcher type');
+            }
+
+            if ($watcher->enabled) {
+                ++$array['enabled'];
+
+                if ($watcher->referenced) {
+                    ++$watchers['referenced'];
+                } else {
+                    ++$watchers['unreferenced'];
+                }
+            } else {
+                ++$array['disabled'];
+            }
+        }
+
         return [
-            'defer' => [
-                'enabled' => count(array_intersect_key($this->defers, $this->activeWatchers)),
-                'disabled' => count(array_diff_key($this->defers, $this->activeWatchers)),
-            ],
-            'delay' => [
-                'enabled' => count(array_intersect_key($this->delayed, $this->activeWatchers)),
-                'disabled' => count(array_diff_key($this->delayed, $this->activeWatchers)),
-            ],
-            'repeat' => [
-                'enabled' => count(array_intersect_key($this->repeats, $this->activeWatchers)),
-                'disabled' => count(array_diff_key($this->repeats, $this->activeWatchers)),
-            ],
-            'on_readable' => ['enabled' => 0, 'disabled' => 0],
-            'on_writable' => ['enabled' => 0, 'disabled' => 0],
-            'on_signal' => ['enabled' => 0, 'disabled' => 0],
-            'watchers' => [
-                'referenced' => count(array_intersect_key($this->watchers, $this->activeWatchers)),
-                'unreferenced' => count(array_diff_key($this->watchers, $this->activeWatchers)),
-            ],
+            'watchers'    => $watchers,
+            'defer'       => $defer,
+            'delay'       => $delay,
+            'repeat'      => $repeat,
+            'on_readable' => $onReadable,
+            'on_writable' => $onWritable,
+            'on_signal'   => $onSignal,
+            'running'     => $this->running,
         ];
     }
 
