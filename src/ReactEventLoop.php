@@ -46,12 +46,21 @@ class ReactEventLoop extends Driver
     private $repeats = [];
 
     /**
+     * @var callable
+     */
+    private $errorHandler;
+
+    /**
      * ReactEventLoop constructor.
      * @param LoopInterface $loop
      */
     public function __construct(LoopInterface $loop)
     {
         $this->loop = $loop;
+
+        $this->errorHandler = function ($e) {
+            throw $e;
+        };
     }
 
     /**
@@ -110,7 +119,11 @@ class ReactEventLoop extends Driver
                     $this->defers[$watcherId]
                 );
 
-                $callback($watcherId, $data);
+                try {
+                    $callback($watcherId, $data);
+                } catch (\Exception $e) {
+                    $this->errorHandler($e);
+                }
             }
         });
     }
@@ -141,7 +154,11 @@ class ReactEventLoop extends Driver
                 $callback = $this->watchers[$watcher->id]->callback;
                 $data = $this->watchers[$watcher->id]->data;
 
-                $callback($watcher->id, $data);
+                try {
+                    $callback($watcher->id, $data);
+                } catch (\Exception $e) {
+                    $this->errorHandler($e);
+                }
             }
 
             unset(
@@ -179,7 +196,11 @@ class ReactEventLoop extends Driver
                 $callback = $this->watchers[$watcher->id]->callback;
                 $data = $this->watchers[$watcher->id]->data;
 
-                $callback($watcher->id, $data);
+                try {
+                    $callback($watcher->id, $data);
+                } catch (\Exception $e) {
+                    $this->errorHandler($e);
+                }
             }
         });
 
@@ -290,7 +311,13 @@ class ReactEventLoop extends Driver
      */
     public function setErrorHandler(callable $callback = null)
     {
-        throw new \Exception();
+        $this->errorHandler = $callback;
+    }
+
+    protected function errorHandler($e)
+    {
+        $errorHandler = $this->errorHandler;
+        $errorHandler($e);
     }
 
     /**
