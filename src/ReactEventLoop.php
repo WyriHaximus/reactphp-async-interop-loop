@@ -272,8 +272,16 @@ class ReactEventLoop extends Driver
     {
         unset($this->watchers[$watcherId]);
 
+        if (isset($this->defers[$watcherId])) {
+            unset($this->defers[$watcherId]);
+        }
+        if (isset($this->delayed[$watcherId])) {
+            $this->delayed[$watcherId]->cancel();
+            unset($this->delayed[$watcherId]);
+        }
         if (isset($this->repeats[$watcherId])) {
             $this->repeats[$watcherId]->cancel();
+            unset($this->repeats[$watcherId]);
         }
     }
 
