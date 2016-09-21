@@ -252,7 +252,13 @@ final class ReactEventLoop extends Driver
                 $callback = $this->watchers[$watcher->id]->callback;
                 $data = $this->watchers[$watcher->id]->data;
 
-                $callback($watcher->id, $this->readables[$watcher->id], $data);
+                try {
+                    $callback($watcher->id, $this->readables[$watcher->id], $data);
+                } catch (\Throwable $e) {
+                    $this->errorHandler($e);
+                } catch (\Exception $e) {
+                    $this->errorHandler($e);
+                }
             }
         );
 
@@ -287,7 +293,13 @@ final class ReactEventLoop extends Driver
                 $callback = $this->watchers[$watcher->id]->callback;
                 $data = $this->watchers[$watcher->id]->data;
 
-                $callback($watcher->id, $this->writables[$watcher->id], $data);
+                try {
+                    $callback($watcher->id, $this->writables[$watcher->id], $data);
+                } catch (\Throwable $e) {
+                    $this->errorHandler($e);
+                } catch (\Exception $e) {
+                    $this->errorHandler($e);
+                }
             }
         );
 
