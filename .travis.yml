@@ -1,5 +1,5 @@
 language: php
-sudo: false
+sudo: true
 
 ## Cache composer bits
 cache:
