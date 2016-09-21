@@ -8,7 +8,7 @@ use Interop\Async\Loop\UnsupportedFeatureException;
 use React\EventLoop\LoopInterface;
 use React\EventLoop\Timer\TimerInterface;
 
-class ReactEventLoop extends Driver
+final class ReactEventLoop extends Driver
 {
     /**
      * @var LoopInterface
@@ -44,6 +44,16 @@ class ReactEventLoop extends Driver
      * @var array
      */
     private $repeats = [];
+
+    /**
+     * @var array
+     */
+    private $readables = [];
+
+    /**
+     * @var array
+     */
+    private $writables = [];
 
     /**
      * @var callable
@@ -218,7 +228,34 @@ class ReactEventLoop extends Driver
      */
     public function onReadable($stream, callable $callback, $data = null)
     {
-        throw new \Exception();
+        $watcher = new Watcher();
+        $watcher->id = $this->nextId++;
+        $watcher->type = Watcher::READABLE;
+        $watcher->callback = $callback;
+        $watcher->data = $data;
+        $this->watchers[$watcher->id] = $watcher;
+
+        $this->readables[$watcher->id] = $stream;
+        $this->addReadStream($watcher);
+        return $watcher->id;
+    }
+
+    protected function addReadStream(Watcher $watcher)
+    {
+        $this->loop->addReadStream(
+            $this->readables[$watcher->id],
+            function () use ($watcher) {
+                if (!isset($this->watchers[$watcher->id]) || !$this->watchers[$watcher->id]->enabled || !$this->watchers[$watcher->id]->referenced) {
+                    return;
+                }
+
+                $callback = $this->watchers[$watcher->id]->callback;
+                $data = $this->watchers[$watcher->id]->data;
+
+                $callback($watcher->id, $this->readables[$watcher->id], $data);
+            }
+        );
+
     }
 
     /**
@@ -226,7 +263,34 @@ class ReactEventLoop extends Driver
      */
     public function onWritable($stream, callable $callback, $data = null)
     {
-        throw new \Exception();
+        $watcher = new Watcher();
+        $watcher->id = $this->nextId++;
+        $watcher->type = Watcher::WRITABLE;
+        $watcher->callback = $callback;
+        $watcher->data = $data;
+        $this->watchers[$watcher->id] = $watcher;
+
+        $this->writables[$watcher->id] = $stream;
+        $this->addWriteStream($watcher);
+        return $watcher->id;
+    }
+
+    protected function addWriteStream(Watcher $watcher)
+    {
+        $this->loop->addWriteStream(
+            $this->writables[$watcher->id],
+            function () use ($watcher) {
+                if (!isset($this->watchers[$watcher->id]) || !$this->watchers[$watcher->id]->enabled || !$this->watchers[$watcher->id]->referenced) {
+                    return;
+                }
+
+                $callback = $this->watchers[$watcher->id]->callback;
+                $data = $this->watchers[$watcher->id]->data;
+
+                $callback($watcher->id, $this->writables[$watcher->id], $data);
+            }
+        );
+
     }
 
     /**
@@ -283,6 +347,14 @@ class ReactEventLoop extends Driver
             $this->repeats[$watcherId]->cancel();
             unset($this->repeats[$watcherId]);
         }
+        if (isset($this->readables[$watcherId])) {
+            $this->loop->removeReadStream($this->readables[$watcherId]);
+            unset($this->readables[$watcherId]);
+        }
+        if (isset($this->writables[$watcherId])) {
+            $this->loop->removeWriteStream($this->writables[$watcherId]);
+            unset($this->writables[$watcherId]);
+        }
     }
 
     /**
@@ -298,6 +370,12 @@ class ReactEventLoop extends Driver
 
         if (in_array($watcherId, $this->defers)) {
             $this->setDeferFutureTick();
+        }
+        if (in_array($watcherId, $this->readables)) {
+            $this->addReadStream($this->watchers[$watcherId]);
+        }
+        if (in_array($watcherId, $this->writables)) {
+            $this->addWriteStream($this->watchers[$watcherId]);
         }
     }
 
@@ -317,6 +395,12 @@ class ReactEventLoop extends Driver
         }
         if (isset($this->repeats[$watcherId])) {
             $this->repeats[$watcherId]->cancel();
+        }
+        if (isset($this->readables[$watcherId])) {
+            $this->loop->removeReadStream($this->readables[$watcherId]);
+        }
+        if (isset($this->writables[$watcherId])) {
+            $this->loop->removeWriteStream($this->writables[$watcherId]);
         }
     }
 
