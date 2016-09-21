@@ -4,6 +4,7 @@ namespace WyriHaximus\React\AsyncInteropLoop;
 
 use Interop\Async\Loop\DriverFactory;
 use InvalidArgumentException;
+use React\EventLoop\Factory;
 use React\EventLoop\LoopInterface;
 
 final class ReactDriverFactory implements DriverFactory
@@ -15,7 +16,7 @@ final class ReactDriverFactory implements DriverFactory
 
     public static function createFactory()
     {
-        return new self('React\EventLoop\Factory::create');
+        return self::createFactoryFromLoop(Factory::create());
     }
 
     public static function createFactoryFromLoop($loop)
