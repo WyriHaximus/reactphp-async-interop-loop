@@ -25,5 +25,11 @@
         "psr-4": {
             "WyriHaximus\\React\\Tests\\AsyncInteropLoop\\": "tests/"
         }
+    },
+    "config": {
+        "sort-packages": true,
+        "platform": {
+            "php": 5.5
+        }
     }
 }
