@@ -26,6 +26,9 @@
             "WyriHaximus\\React\\Tests\\AsyncInteropLoop\\": "tests/"
         }
     },
+    "provide": {
+        "async-interop/event-loop-implementation": "^0.3"
+    },
     "config": {
         "sort-packages": true,
         "platform": {

@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "fe381cf1186c690e23117b518126c227",
-    "content-hash": "78d1926e48b0372e02597d2ddd3294fd",
+    "hash": "4e4c512d53f3b9473e46755ab4190cb2",
+    "content-hash": "1540d54acde1cf564cb6c8daddae5388",
     "packages": [
         {
             "name": "async-interop/event-loop",
