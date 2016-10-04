@@ -5,6 +5,7 @@ namespace WyriHaximus\React\AsyncInteropLoop;
 use Interop\Async\Loop\Driver;
 use Interop\Async\Loop\InvalidWatcherException;
 use Interop\Async\Loop\UnsupportedFeatureException;
+use InvalidArgumentException;
 use React\EventLoop\LoopInterface;
 use React\EventLoop\Timer\TimerInterface;
 
@@ -145,6 +146,10 @@ final class ReactEventLoop extends Driver
      */
     public function delay($delay, callable $callback, $data = null)
     {
+        if ($delay < 0) {
+            throw new InvalidArgumentException('Delay must be greater than or equal to zero');
+        }
+
         $watcher = new Watcher();
         $watcher->id = $this->nextId++;
         $watcher->type = Watcher::DELAY;
@@ -155,16 +160,16 @@ final class ReactEventLoop extends Driver
         $this->delayed[$watcher->id] = $this->loop->addTimer($delay / 1000, function (TimerInterface $timer) use ($watcher) {
             if (!isset($this->watchers[$watcher->id])) {
                 $timer->cancel();
-
-                unset(
-                    $this->watchers[$watcher->id],
-                    $this->delayed[$watcher->id]
-                );
             }
 
             if (isset($this->watchers[$watcher->id]) && $this->watchers[$watcher->id]->enabled && $this->watchers[$watcher->id]->referenced) {
                 $callback = $this->watchers[$watcher->id]->callback;
                 $data = $this->watchers[$watcher->id]->data;
+
+                unset(
+                    $this->watchers[$watcher->id],
+                    $this->delayed[$watcher->id]
+                );
 
                 try {
                     $callback($watcher->id, $data);
@@ -174,11 +179,6 @@ final class ReactEventLoop extends Driver
                     $this->errorHandler($e);
                 }
             }
-
-            unset(
-                $this->watchers[$watcher->id],
-                $this->delayed[$watcher->id]
-            );
         });
 
         return $watcher->id;
