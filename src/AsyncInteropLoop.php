@@ -100,6 +100,10 @@ class AsyncInteropLoop implements LoopInterface
 
     public function tick()
     {
-        // TODO: Implement tick() method.
+        Loop::execute(function() {
+            Loop::defer(function () {
+                Loop::stop();
+            });
+        });
     }
 }
