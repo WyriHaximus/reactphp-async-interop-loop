@@ -109,7 +109,7 @@ final class ReactEventLoop extends Driver
             $this->setDeferFutureTick();
         }
 
-        $this->defers[] = $watcher->id;
+        $this->defers[$watcher->id] = $watcher->id;
 
         return $watcher->id;
     }
