@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "8f62902e047ff4afa1a66811a7cb0cc8",
-    "content-hash": "1540d54acde1cf564cb6c8daddae5388",
+    "hash": "6de2c757e16929157241bed335e471a4",
+    "content-hash": "d1fcaddb1fec19c00eaf12dd0f8d6086",
     "packages": [
         {
             "name": "async-interop/event-loop",
@@ -92,6 +92,53 @@
         }
     ],
     "packages-dev": [
+        {
+            "name": "amphp/loop",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/amphp/loop.git",
+                "reference": "973a08c26b8f79e7282fa1d5e472462cd468e5a4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/amphp/loop/zipball/973a08c26b8f79e7282fa1d5e472462cd468e5a4",
+                "reference": "973a08c26b8f79e7282fa1d5e472462cd468e5a4",
+                "shasum": ""
+            },
+            "require": {
+                "async-interop/event-loop": "^0.3"
+            },
+            "provide": {
+                "async-interop/event-loop-implementation": "^0.3"
+            },
+            "require-dev": {
+                "async-interop/event-loop-test": "dev-master",
+                "friendsofphp/php-cs-fixer": "~1.9"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Amp\\Loop\\": "lib"
+                },
+                "files": [
+                    "lib/bootstrap.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "homepage": "http://amphp.org",
+            "keywords": [
+                "async",
+                "asynchronous",
+                "event",
+                "loop",
+                "reactor"
+            ],
+            "time": "2016-09-09 22:38:22"
+        },
         {
             "name": "async-interop/event-loop-test",
             "version": "dev-master",
@@ -1239,6 +1286,7 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
+        "amphp/loop": 20,
         "async-interop/event-loop-test": 20
     },
     "prefer-stable": false,
