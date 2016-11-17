@@ -138,6 +138,10 @@ final class ReactEventLoop extends Driver
                     $this->errorHandler($e);
                 }
             }
+
+            if (count($this->defers) !== 0) {
+                $this->setDeferFutureTick();
+            }
         });
     }
 
