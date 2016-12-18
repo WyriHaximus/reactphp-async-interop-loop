@@ -89,8 +89,7 @@ class AsyncInteropLoop implements LoopInterface
 
     public function addTimer($interval, callable $callback)
     {
-        $time = $interval * 1000;
-
+        $time = intval($interval * 1000);
         $watcherId = Loop::delay($time, $callback);
 
         $timer = new ReactTimer($this, $interval, $callback, false);
@@ -103,7 +102,7 @@ class AsyncInteropLoop implements LoopInterface
 
     public function addPeriodicTimer($interval, callable $callback)
     {
-        $time = $interval * 1000;
+        $time = intval($interval * 1000);
         $watcherId = Loop::repeat($time, $callback);
 
         $timer = new ReactTimer($this, $interval, $callback, true);
