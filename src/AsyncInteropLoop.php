@@ -8,6 +8,7 @@ use React\EventLoop\Timer\TimerInterface;
 
 class AsyncInteropLoop implements LoopInterface
 {
+    private $inNextTick = false;
     private $timers = [];
     private $readStreams = [];
     private $writeStreams = [];
@@ -116,7 +117,17 @@ class AsyncInteropLoop implements LoopInterface
 
     public function nextTick(callable $listener)
     {
-        $this->futureTick($listener);
+        if ($this->inNextTick) {
+            $listener($this);
+            return;
+        }
+
+        Loop::defer(function () use ($listener) {
+            $previousValue = $this->inNextTick;
+            $this->inNextTick = true;
+            $listener($this);
+            $this->inNextTick = $previousValue;
+        });
     }
 
     public function futureTick(callable $listener)
