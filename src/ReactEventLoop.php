@@ -337,6 +337,12 @@ final class ReactEventLoop extends Driver
 
         $this->watchers[$watcherId]->enabled = true;
 
+        // Sort to execute in right order
+        if ($this->watchers[$watcherId]->type === Watcher::DEFER) {
+            unset($this->defers[$watcherId]);
+            $this->defers[$watcherId] = $watcherId;
+        }
+
         if (in_array($watcherId, $this->defers)) {
             $this->setDeferFutureTick();
         }
