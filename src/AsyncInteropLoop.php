@@ -90,20 +90,25 @@ class AsyncInteropLoop implements LoopInterface
 
     public function nextTick(callable $listener)
     {
-        Loop::defer($listener);
+        $this->futureTick($listener);
     }
 
     public function futureTick(callable $listener)
     {
-        Loop::defer($listener);
+        Loop::defer(function () use ($listener) {
+            $listener($this);
+        });
     }
 
     public function tick()
     {
-        Loop::execute(function() {
-            Loop::defer(function () {
-                Loop::stop();
-            });
-        });
+        Loop::execute(
+            function() {
+                Loop::defer(function () {
+                    Loop::stop();
+                });
+            },
+            Loop::get()
+        );
     }
 }
