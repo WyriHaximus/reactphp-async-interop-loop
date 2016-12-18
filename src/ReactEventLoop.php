@@ -335,6 +335,10 @@ final class ReactEventLoop extends Driver
             throw new InvalidWatcherException();
         }
 
+        if ($this->watchers[$watcherId]->enabled) {
+            return;
+        }
+
         $this->watchers[$watcherId]->enabled = true;
 
         // Sort to execute in right order
