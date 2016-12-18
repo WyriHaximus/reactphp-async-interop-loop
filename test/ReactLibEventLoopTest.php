@@ -10,6 +10,7 @@ class ReactLibEventLoopTest extends Test
 {
     public function getFactory()
     {
+        $this->markTestSkipped();
         if (!function_exists('event_base_new')) {
             $this->markTestSkipped();
         }
