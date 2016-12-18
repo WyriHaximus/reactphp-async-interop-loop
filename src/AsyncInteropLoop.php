@@ -50,6 +50,10 @@ class AsyncInteropLoop implements LoopInterface
 
     public function removeReadStream($stream)
     {
+        if (!isset($this->readStreams[(int)$stream])) {
+            return;
+        }
+
         $watcherId = $this->readStreams[(int)$stream];
         unset($this->readStreams[(int)$stream]);
         Loop::cancel($watcherId);
@@ -57,6 +61,10 @@ class AsyncInteropLoop implements LoopInterface
 
     public function removeWriteStream($stream)
     {
+        if (!isset($this->writeStreams[(int)$stream])) {
+            return;
+        }
+
         $watcherId = $this->writeStreams[(int)$stream];
         unset($this->writeStreams[(int)$stream]);
         Loop::cancel($watcherId);
