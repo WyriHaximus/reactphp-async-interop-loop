@@ -98,12 +98,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/amphp/loop.git",
-                "reference": "973a08c26b8f79e7282fa1d5e472462cd468e5a4"
+                "reference": "ef9216a00a829dc7bb607942431c579bdfb88fcf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/amphp/loop/zipball/973a08c26b8f79e7282fa1d5e472462cd468e5a4",
-                "reference": "973a08c26b8f79e7282fa1d5e472462cd468e5a4",
+                "url": "https://api.github.com/repos/amphp/loop/zipball/ef9216a00a829dc7bb607942431c579bdfb88fcf",
+                "reference": "ef9216a00a829dc7bb607942431c579bdfb88fcf",
                 "shasum": ""
             },
             "require": {
@@ -137,7 +137,7 @@
                 "loop",
                 "reactor"
             ],
-            "time": "2016-09-09 22:38:22"
+            "time": "2016-12-18 20:56:47"
         },
         {
             "name": "async-interop/event-loop-test",
