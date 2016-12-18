@@ -128,13 +128,9 @@ class AsyncInteropLoop implements LoopInterface
 
     public function tick()
     {
-        Loop::execute(
-            function() {
-                Loop::defer(function () {
-                    Loop::stop();
-                });
-            },
-            Loop::get()
-        );
+        Loop::defer(function () {
+            Loop::stop();
+        });
+        $this->run();
     }
 }
