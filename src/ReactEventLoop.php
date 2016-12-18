@@ -140,7 +140,12 @@ final class ReactEventLoop extends Driver
             }
 
             if (count($this->defers) !== 0) {
-                $this->setDeferFutureTick();
+                foreach ($this->defers as $defer) {
+                    if ($this->watchers[$defer->id]->referenced === true) {
+                        $this->setDeferFutureTick();
+                        break;
+                    }
+                }
             }
         });
     }
@@ -493,5 +498,4 @@ final class ReactEventLoop extends Driver
     {
         return;
     }
-
 }
