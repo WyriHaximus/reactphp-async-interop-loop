@@ -12,6 +12,7 @@ class AsyncInteropExtEventLoopTest extends AbstractLoopTest
 {
     public function createLoop()
     {
+        $this->markTestSkipped();
         if (!class_exists('EventBase', false)) {
             $this->markTestSkipped();
         }
