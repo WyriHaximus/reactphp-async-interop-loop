@@ -118,7 +118,7 @@ final class ReactEventLoop extends Driver
     {
         $this->loop->futureTick(function () {
             foreach ($this->defers as $watcherId) {
-                if (!isset($this->watchers[$watcherId]) || !$this->watchers[$watcherId]->enabled || !$this->watchers[$watcherId]->referenced) {
+                if (!isset($this->watchers[$watcherId]) || !$this->watchers[$watcherId]->enabled) {
                     continue;
                 }
 
