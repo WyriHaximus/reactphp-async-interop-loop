@@ -12,7 +12,10 @@ class AsyncInteropLoop implements LoopInterface
 
     public function run()
     {
-        Loop::execute(function() {});
+        Loop::execute(
+            function() {},
+            Loop::get()
+        );
     }
 
     public function stop()
