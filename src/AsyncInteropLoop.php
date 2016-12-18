@@ -34,7 +34,7 @@ class AsyncInteropLoop implements LoopInterface
                 $listener($stream, $this);
             }
         );
-        $this->readStreams[(int)$stream] = $id;
+        $this->readStreams[(int)$stream][] = $id;
     }
 
     public function addWriteStream($stream, callable $listener)
@@ -45,37 +45,44 @@ class AsyncInteropLoop implements LoopInterface
                 $listener($stream, $this);
             }
         );
-        $this->writeStreams[(int)$stream] = $id;
+        $this->writeStreams[(int)$stream][] = $id;
     }
 
     public function removeReadStream($stream)
     {
+        $key = (int)$stream;
         if (!isset($this->readStreams[(int)$stream])) {
             return;
         }
 
-        $watcherId = $this->readStreams[(int)$stream];
-        unset($this->readStreams[(int)$stream]);
-        Loop::cancel($watcherId);
+        $watcherIds = $this->readStreams[$key];
+        unset($this->readStreams[$key]);
+        foreach ($watcherIds as $watcherId) {
+            Loop::cancel($watcherId);
+        }
     }
 
     public function removeWriteStream($stream)
     {
-        if (!isset($this->writeStreams[(int)$stream])) {
+        $key = (int)$stream;
+        if (!isset($this->writeStreams[$key])) {
             return;
         }
 
-        $watcherId = $this->writeStreams[(int)$stream];
-        unset($this->writeStreams[(int)$stream]);
-        Loop::cancel($watcherId);
+        $watcherIds = $this->writeStreams[$key];
+        unset($this->writeStreams[$key]);
+        foreach ($watcherIds as $watcherId) {
+            Loop::cancel($watcherId);
+        }
     }
 
     public function removeStream($stream)
     {
-        if (isset($this->readStreams[(int)$stream])) {
+        $key = (int)$stream;
+        if (isset($this->readStreams[$key])) {
             $this->removeReadStream($stream);
         }
-        if (isset($this->writeStreams[(int)$stream])) {
+        if (isset($this->writeStreams[$key])) {
             $this->removeWriteStream($stream);
         }
     }
