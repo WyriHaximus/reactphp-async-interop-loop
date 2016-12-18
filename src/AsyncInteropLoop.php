@@ -9,6 +9,8 @@ use React\EventLoop\Timer\TimerInterface;
 class AsyncInteropLoop implements LoopInterface
 {
     private $timers = [];
+    private $readStreams = [];
+    private $writeStreams = [];
 
     public function run()
     {
@@ -25,27 +27,48 @@ class AsyncInteropLoop implements LoopInterface
 
     public function addReadStream($stream, callable $listener)
     {
-        // TODO: Implement addReadStream() method.
+        $id = Loop::onReadable(
+            $stream,
+            function () use ($stream, $listener) {
+                $listener($stream, $this);
+            }
+        );
+        $this->readStreams[(int)$stream] = $id;
     }
 
     public function addWriteStream($stream, callable $listener)
     {
-        // TODO: Implement addWriteStream() method.
+        $id = Loop::onWritable(
+            $stream,
+            function () use ($stream, $listener) {
+                $listener($stream, $this);
+            }
+        );
+        $this->writeStreams[(int)$stream] = $id;
     }
 
     public function removeReadStream($stream)
     {
-        // TODO: Implement removeReadStream() method.
+        $watcherId = $this->readStreams[(int)$stream];
+        unset($this->readStreams[(int)$stream]);
+        Loop::cancel($watcherId);
     }
 
     public function removeWriteStream($stream)
     {
-        // TODO: Implement removeWriteStream() method.
+        $watcherId = $this->writeStreams[(int)$stream];
+        unset($this->writeStreams[(int)$stream]);
+        Loop::cancel($watcherId);
     }
 
     public function removeStream($stream)
     {
-        // TODO: Implement removeStream() method.
+        if (isset($this->readStreams[(int)$stream])) {
+            $this->removeReadStream($stream);
+        }
+        if (isset($this->writeStreams[(int)$stream])) {
+            $this->removeWriteStream($stream);
+        }
     }
 
     public function addTimer($interval, callable $callback)
