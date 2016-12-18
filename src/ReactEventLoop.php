@@ -27,12 +27,12 @@ final class ReactEventLoop extends Driver
     private $nextId = 'a';
 
     /**
-     * @var array
+     * @var Watcher[]
      */
     private $watchers = [];
 
     /**
-     * @var array
+     * @var string[]
      */
     private $defers = [];
 
@@ -139,7 +139,7 @@ final class ReactEventLoop extends Driver
                 }
             }
 
-            if (count($this->defers) !== 0) {
+            if (count($this->defers)) {
                 foreach ($this->defers as $watcherId) {
                     if (!isset($this->watchers[$watcherId])) {
                         continue;
