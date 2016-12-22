@@ -12,16 +12,16 @@ if [[ "$TRAVIS_PHP_VERSION" != "hhvm" &&
     echo "yes" | pecl install event
 
     # install 'libevent' PHP extension (does not support php 7)
-    if [[ "$TRAVIS_PHP_VERSION" != "7.0" ]]; then
-        curl http://pecl.php.net/get/libevent-0.1.0.tgz | tar -xz
-        pushd libevent-0.1.0
-        phpize
-       ./configure
-       make
-       make install
-       popd
-       echo "extension=libevent.so" >> "$(php -r 'echo php_ini_loaded_file();')"
-    fi
+#    if [[ "$TRAVIS_PHP_VERSION" != "7.0" ]]; then
+#        curl http://pecl.php.net/get/libevent-0.1.0.tgz | tar -xz
+#        pushd libevent-0.1.0
+#        phpize
+#       ./configure
+#       make
+#       make install
+#       popd
+#       echo "extension=libevent.so" >> "$(php -r 'echo php_ini_loaded_file();')"
+#    fi
 
     # install 'libev' PHP extension (does not support php 7)
     if [[ "$TRAVIS_PHP_VERSION" != "7.0" ]]; then
