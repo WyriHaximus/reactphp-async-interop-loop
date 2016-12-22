@@ -27,12 +27,12 @@ final class ReactEventLoop extends Driver
     private $nextId = 'a';
 
     /**
-     * @var array
+     * @var Watcher[]
      */
     private $watchers = [];
 
     /**
-     * @var array
+     * @var string[]
      */
     private $defers = [];
 
@@ -118,7 +118,7 @@ final class ReactEventLoop extends Driver
     {
         $this->loop->futureTick(function () {
             foreach ($this->defers as $watcherId) {
-                if (!isset($this->watchers[$watcherId]) || !$this->watchers[$watcherId]->enabled || !$this->watchers[$watcherId]->referenced) {
+                if (!isset($this->watchers[$watcherId]) || !$this->watchers[$watcherId]->enabled) {
                     continue;
                 }
 
@@ -139,7 +139,7 @@ final class ReactEventLoop extends Driver
                 }
             }
 
-            if (count($this->defers) !== 0) {
+            if (count($this->defers)) {
                 foreach ($this->defers as $watcherId) {
                     if (!isset($this->watchers[$watcherId])) {
                         continue;
@@ -335,7 +335,17 @@ final class ReactEventLoop extends Driver
             throw new InvalidWatcherException();
         }
 
+        if ($this->watchers[$watcherId]->enabled) {
+            return;
+        }
+
         $this->watchers[$watcherId]->enabled = true;
+
+        // Sort to execute in right order
+        if ($this->watchers[$watcherId]->type === Watcher::DEFER) {
+            unset($this->defers[$watcherId]);
+            $this->defers[$watcherId] = $watcherId;
+        }
 
         if (in_array($watcherId, $this->defers)) {
             $this->setDeferFutureTick();
