@@ -1,6 +1,8 @@
 {
     "name": "wyrihaximus/react-async-interop-loop",
     "license": "MIT",
+    "minimum-stability": "dev",
+    "prefer-stable": true,
     "authors": [
         {
             "name": "Cees-Jan Kiewiet",
@@ -10,7 +12,7 @@
     "require": {
         "php": "^7.0 || ^5.5",
         "react/event-loop": "^0.4.2",
-        "async-interop/event-loop": "^0.3"
+        "async-interop/event-loop": "dev-master"
     },
     "require-dev": {
         "amphp/loop": "dev-master",

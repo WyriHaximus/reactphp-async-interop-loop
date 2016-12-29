@@ -456,7 +456,7 @@ final class ReactEventLoop extends Driver
     /**
      * {@inheritdoc}
      */
-    public function info()
+    public function getInfo()
     {
         $watchers = [
             'referenced'   => 0,
