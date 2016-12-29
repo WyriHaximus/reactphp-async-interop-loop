@@ -68,10 +68,6 @@ final class ReactEventLoop extends Driver
     public function __construct(LoopInterface $loop)
     {
         $this->loop = $loop;
-
-        $this->errorHandler = function ($e) {
-            throw $e;
-        };
     }
 
     /**
@@ -444,12 +440,19 @@ final class ReactEventLoop extends Driver
      */
     public function setErrorHandler(callable $callback = null)
     {
+        $oldErrorHandler = $this->errorHandler;
         $this->errorHandler = $callback;
+        return $oldErrorHandler;
     }
 
     protected function errorHandler($e)
     {
         $errorHandler = $this->errorHandler;
+        if ($errorHandler === null) {
+            $errorHandler = function ($e) {
+                throw $e;
+            };
+        }
         $errorHandler($e);
     }
 
