@@ -114,7 +114,7 @@ final class ReactEventLoop extends Driver
     {
         $this->loop->futureTick(function () {
             foreach ($this->defers as $watcherId) {
-                if (!isset($this->watchers[$watcherId]) || !$this->watchers[$watcherId]->enabled) {
+                if (!isset($this->watchers[$watcherId]) || !$this->watchers[$watcherId]->enabled || !$this->watchers[$watcherId]->referenced) {
                     continue;
                 }
 
@@ -328,7 +328,7 @@ final class ReactEventLoop extends Driver
     public function enable($watcherId)
     {
         if (!isset($this->watchers[$watcherId])) {
-            throw new InvalidWatcherException();
+            throw new InvalidWatcherException($watcherId);
         }
 
         if ($this->watchers[$watcherId]->enabled) {
@@ -394,7 +394,7 @@ final class ReactEventLoop extends Driver
     public function reference($watcherId)
     {
         if (!isset($this->watchers[$watcherId])) {
-            throw new InvalidWatcherException();
+            throw new InvalidWatcherException($watcherId);
         }
 
         $this->watchers[$watcherId]->referenced = true;
@@ -416,7 +416,7 @@ final class ReactEventLoop extends Driver
     public function unreference($watcherId)
     {
         if (!isset($this->watchers[$watcherId])) {
-            throw new InvalidWatcherException();
+            throw new InvalidWatcherException($watcherId);
         }
 
         $this->watchers[$watcherId]->referenced = false;
