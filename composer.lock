@@ -4,12 +4,12 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "76552dccf2b95303c537603ca2c87deb",
-    "content-hash": "306c0fef028fd62e9f5e450a98bb1d76",
+    "hash": "53cef95cc16d1b8beaa9ff5c34b1e8f1",
+    "content-hash": "495428cc1d293e53ede7cc6a3d45372a",
     "packages": [
         {
             "name": "async-interop/event-loop",
-            "version": "dev-master",
+            "version": "v0.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/async-interop/event-loop.git",
@@ -100,19 +100,19 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/amphp/loop.git",
-                "reference": "5079bb3f13344e721937d2d0d9aa53532391ba0f"
+                "reference": "26a707ed94b3e901dee1d4de59e3ae3c9dbd3556"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/amphp/loop/zipball/5079bb3f13344e721937d2d0d9aa53532391ba0f",
-                "reference": "5079bb3f13344e721937d2d0d9aa53532391ba0f",
+                "url": "https://api.github.com/repos/amphp/loop/zipball/26a707ed94b3e901dee1d4de59e3ae3c9dbd3556",
+                "reference": "26a707ed94b3e901dee1d4de59e3ae3c9dbd3556",
                 "shasum": ""
             },
             "require": {
-                "async-interop/event-loop": "dev-master"
+                "async-interop/event-loop": "0.4"
             },
             "provide": {
-                "async-interop/event-loop-implementation": "^0.3"
+                "async-interop/event-loop-implementation": "^0.4"
             },
             "require-dev": {
                 "async-interop/event-loop-test": "dev-master",
@@ -139,7 +139,7 @@
                 "loop",
                 "reactor"
             ],
-            "time": "2016-12-29 17:47:42"
+            "time": "2016-12-29 23:55:06"
         },
         {
             "name": "async-interop/event-loop-test",
@@ -147,12 +147,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/async-interop/event-loop-test.git",
-                "reference": "b0a122ef29daceb3fe76919cffca814b339a0767"
+                "reference": "1fe1eb1d21f17cf93ea2458b8f5701a7cfa2fa90"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/async-interop/event-loop-test/zipball/b0a122ef29daceb3fe76919cffca814b339a0767",
-                "reference": "b0a122ef29daceb3fe76919cffca814b339a0767",
+                "url": "https://api.github.com/repos/async-interop/event-loop-test/zipball/1fe1eb1d21f17cf93ea2458b8f5701a7cfa2fa90",
+                "reference": "1fe1eb1d21f17cf93ea2458b8f5701a7cfa2fa90",
                 "shasum": ""
             },
             "require": {
@@ -178,7 +178,7 @@
                 "loop",
                 "test"
             ],
-            "time": "2016-12-29 17:16:36"
+            "time": "2016-12-29 20:59:26"
         },
         {
             "name": "doctrine/instantiator",
@@ -1287,13 +1287,12 @@
         }
     ],
     "aliases": [],
-    "minimum-stability": "dev",
+    "minimum-stability": "stable",
     "stability-flags": {
-        "async-interop/event-loop": 20,
         "amphp/loop": 20,
         "async-interop/event-loop-test": 20
     },
-    "prefer-stable": true,
+    "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
         "php": "^7.0 || ^5.5"
