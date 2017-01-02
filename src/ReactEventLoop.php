@@ -75,9 +75,14 @@ final class ReactEventLoop extends Driver
      */
     public function run()
     {
+        $previous = $this->running;
         $this->running = true;
-        $this->loop->run();
-        $this->running = false;
+
+        try {
+            $this->loop->run();
+        } finally {
+            $this->running = $previous;
+        }
     }
 
     /**
