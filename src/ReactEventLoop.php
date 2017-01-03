@@ -452,6 +452,9 @@ final class ReactEventLoop extends Driver
         return $oldErrorHandler;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     protected function errorHandler($e)
     {
         $errorHandler = $this->errorHandler;
