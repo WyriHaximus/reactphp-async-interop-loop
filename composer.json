@@ -20,7 +20,10 @@
     "autoload": {
         "psr-4": {
             "WyriHaximus\\React\\AsyncInteropLoop\\": "src/"
-        }
+        },
+        "files": [
+            "src/bootstrap.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
