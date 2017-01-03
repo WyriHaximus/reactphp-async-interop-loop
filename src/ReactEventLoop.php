@@ -110,7 +110,7 @@ final class ReactEventLoop extends Driver
             $this->setDeferFutureTick();
         }
 
-        $this->defers[$watcher->id] = $watcher->id;
+        $this->defers[] = $watcher->id;
 
         return $watcher->id;
     }
@@ -118,8 +118,11 @@ final class ReactEventLoop extends Driver
     protected function setDeferFutureTick()
     {
         $this->loop->futureTick(function () {
-            foreach ($this->defers as $watcherId) {
+            $defers = $this->defers;
+            $this->defers = [];
+            foreach ($defers as $watcherId) {
                 if (!isset($this->watchers[$watcherId]) || !$this->watchers[$watcherId]->enabled || !$this->watchers[$watcherId]->referenced) {
+                    $this->defers[] = $watcherId;
                     continue;
                 }
 
@@ -127,8 +130,7 @@ final class ReactEventLoop extends Driver
                 $data = $this->watchers[$watcherId]->data;
 
                 unset(
-                    $this->watchers[$watcherId],
-                    $this->defers[$watcherId]
+                    $this->watchers[$watcherId]
                 );
 
                 try {
@@ -140,7 +142,7 @@ final class ReactEventLoop extends Driver
                 }
             }
 
-            if (count($this->defers)) {
+            if (count($this->defers) > 0) {
                 foreach ($this->defers as $watcherId) {
                     if (!isset($this->watchers[$watcherId])) {
                         continue;
