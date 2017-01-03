@@ -142,16 +142,14 @@ final class ReactEventLoop extends Driver
                 }
             }
 
-            if (count($this->defers) > 0) {
-                foreach ($this->defers as $watcherId) {
-                    if (!isset($this->watchers[$watcherId])) {
-                        continue;
-                    }
+            foreach ($this->defers as $watcherId) {
+                if (!isset($this->watchers[$watcherId])) {
+                    continue;
+                }
 
-                    if ($this->watchers[$watcherId]->referenced === true) {
-                        $this->setDeferFutureTick();
-                        break;
-                    }
+                if ($this->watchers[$watcherId]->referenced === true) {
+                    $this->setDeferFutureTick();
+                    break;
                 }
             }
         });
