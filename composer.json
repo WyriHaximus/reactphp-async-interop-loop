@@ -29,7 +29,7 @@
         }
     },
     "provide": {
-        "async-interop/event-loop-implementation": "^0.3"
+        "async-interop/event-loop-implementation": "^0.4"
     },
     "config": {
         "sort-packages": true,
