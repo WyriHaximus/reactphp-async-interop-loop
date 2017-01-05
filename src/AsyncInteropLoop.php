@@ -87,12 +87,24 @@ class AsyncInteropLoop implements LoopInterface
         }
     }
 
-    public function addTimer($interval, callable $callback)
+    private function addWrappedTimer($interval, callable $callback, $isPeriodic = false)
     {
-        $time = intval($interval * 1000);
-        $watcherId = Loop::delay($time, $callback);
-
-        $timer = new ReactTimer($this, $interval, $callback, false);
+        $wrappedCallback = function () use (&$timer, $callback) {
+            $callback($timer);
+        };
+        $millis          = $interval * 1000;
+        if ($isPeriodic) {
+            $watcherId = Loop::repeat($millis, $wrappedCallback);
+        } else {
+            $watcherId = Loop::delay($millis, $wrappedCallback);
+        }
+        $timer = new ReactTimer(
+            $watcherId,
+            $interval,
+            $callback,
+            $this,
+            false
+        );
 
         $hash = spl_object_hash($timer);
         $this->timers[$hash] = $watcherId;
@@ -100,17 +112,19 @@ class AsyncInteropLoop implements LoopInterface
         return $timer;
     }
 
+    public function addTimer($interval, callable $callback)
+    {
+        return $this->addWrappedTimer($interval, $callback);
+    }
+
+    /**
+     * @param float|int $interval
+     * @param callable $callback
+     * @return ReactTimer
+     */
     public function addPeriodicTimer($interval, callable $callback)
     {
-        $time = intval($interval * 1000);
-        $watcherId = Loop::repeat($time, $callback);
-
-        $timer = new ReactTimer($this, $interval, $callback, true);
-
-        $hash = spl_object_hash($timer);
-        $this->timers[$hash] = $watcherId;
-
-        return $timer;
+        return $this->addWrappedTimer($interval, $callback, true);
     }
 
     public function cancelTimer(TimerInterface $timer)
