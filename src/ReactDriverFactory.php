@@ -12,7 +12,7 @@ final class ReactDriverFactory implements DriverFactory
     /**
      * @var callable
      */
-    private $facory;
+    private $factory;
 
     public static function createFactory()
     {
@@ -32,7 +32,7 @@ final class ReactDriverFactory implements DriverFactory
 
     protected function __construct(callable $factory)
     {
-        $this->facory = $factory;
+        $this->factory = $factory;
     }
 
     /**
@@ -40,7 +40,7 @@ final class ReactDriverFactory implements DriverFactory
      */
     public function create()
     {
-        $facory = $this->facory;
-        return new ReactEventLoop($facory());
+        $factory = $this->factory;
+        return new ReactEventLoop($factory());
     }
 }
