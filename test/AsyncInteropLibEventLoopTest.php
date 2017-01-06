@@ -4,11 +4,10 @@ namespace WyriHaximus\React\Tests\AsyncInteropLoop;
 
 use Interop\Async\Loop;
 use React\EventLoop\LibEventLoop;
-use React\Tests\EventLoop\AbstractLoopTest;
 use WyriHaximus\React\AsyncInteropLoop\AsyncInteropLoop;
 use WyriHaximus\React\AsyncInteropLoop\ReactDriverFactory;
 
-class AsyncInteropLibEventLoopTest extends AbstractLoopTest
+class AsyncInteropLibEventLoopTest extends AbstractLoopTestCase
 {
     public function createLoop()
     {

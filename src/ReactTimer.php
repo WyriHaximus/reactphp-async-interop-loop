@@ -4,87 +4,21 @@ namespace WyriHaximus\React\AsyncInteropLoop;
 
 use Interop\Async\Loop;
 use React\EventLoop\LoopInterface;
-use React\EventLoop\Timer\TimerInterface;
+use React\EventLoop\Timer\Timer;
 
-class ReactTimer implements TimerInterface
+final class ReactTimer extends Timer
 {
-    /**
-     * @var LoopInterface
-     */
-    private $loop;
+    private $watcherId;
 
-    /**
-     * @var int
-     */
-    private $interval;
-
-    /**
-     * @var callable
-     */
-    private $callback;
-
-    /**
-     * @var bool
-     */
-    private $isPeriodic;
-
-    /**
-     * @var mixed
-     */
-    private $data;
-
-    /**
-     * ReactTimer constructor.
-     * @param LoopInterface $loop
-     * @param int $interval
-     * @param callable $callback
-     * @param bool $isPeriodic
-     */
-    public function __construct(LoopInterface $loop, $interval, callable $callback, $isPeriodic)
+    public function __construct($watcherId, $interval, callable $callback, LoopInterface $loop, $isPeriodic = false, $data = null)
     {
-        $this->loop = $loop;
-        $this->interval = $interval;
-        $this->callback = $callback;
-        $this->isPeriodic = $isPeriodic;
-    }
-
-    public function getLoop()
-    {
-        return $this->loop;
-    }
-
-    public function getInterval()
-    {
-        return $this->interval;
-    }
-
-    public function getCallback()
-    {
-        return $this->callback;
-    }
-
-    public function setData($data)
-    {
-        $this->data = $data;
-    }
-
-    public function getData()
-    {
-        return $this->data;
-    }
-
-    public function isPeriodic()
-    {
-        return $this->isPeriodic;
-    }
-
-    public function isActive()
-    {
-        $this->loop->isTimerActive($this);
+        parent::__construct($loop, $interval, $callback, $isPeriodic, $data);
+        $this->watcherId = $watcherId;
     }
 
     public function cancel()
     {
-        $this->loop->cancelTimer($this);
+        parent::cancel();
+        Loop::cancel($this->watcherId);
     }
 }
