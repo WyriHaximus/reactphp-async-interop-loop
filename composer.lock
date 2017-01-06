@@ -99,12 +99,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/amphp/loop.git",
-                "reference": "e169bb649c3f4b22215030c5360f6b6b33102de8"
+                "reference": "a47fc2bc0141c829e6db1881273d27f5633f7acc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/amphp/loop/zipball/e169bb649c3f4b22215030c5360f6b6b33102de8",
-                "reference": "e169bb649c3f4b22215030c5360f6b6b33102de8",
+                "url": "https://api.github.com/repos/amphp/loop/zipball/a47fc2bc0141c829e6db1881273d27f5633f7acc",
+                "reference": "a47fc2bc0141c829e6db1881273d27f5633f7acc",
                 "shasum": ""
             },
             "require": {
@@ -138,7 +138,7 @@
                 "loop",
                 "reactor"
             ],
-            "time": "2017-01-06T16:21:58+00:00"
+            "time": "2017-01-06T16:50:05+00:00"
         },
         {
             "name": "async-interop/event-loop-test",
@@ -146,12 +146,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/async-interop/event-loop-test.git",
-                "reference": "79355641ed06f959b5e6bddac7c746d44c77e4fc"
+                "reference": "e5c4c612f885f694c7b88a9de25ae40fd3309615"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/async-interop/event-loop-test/zipball/79355641ed06f959b5e6bddac7c746d44c77e4fc",
-                "reference": "79355641ed06f959b5e6bddac7c746d44c77e4fc",
+                "url": "https://api.github.com/repos/async-interop/event-loop-test/zipball/e5c4c612f885f694c7b88a9de25ae40fd3309615",
+                "reference": "e5c4c612f885f694c7b88a9de25ae40fd3309615",
                 "shasum": ""
             },
             "require": {
@@ -177,7 +177,7 @@
                 "loop",
                 "test"
             ],
-            "time": "2017-01-06T16:21:37+00:00"
+            "time": "2017-01-06T16:51:50+00:00"
         },
         {
             "name": "doctrine/instantiator",
