@@ -2,7 +2,7 @@
 
 namespace WyriHaximus\React\Tests\AsyncInteropLoop;
 
-use Interop\Async\Loop\Driver;
+use AsyncInterop\Loop\Driver;
 use PHPUnit_Framework_TestCase;
 use React\EventLoop\StreamSelectLoop;
 use WyriHaximus\React\AsyncInteropLoop\ReactDriverFactory;

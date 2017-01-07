@@ -2,7 +2,7 @@
 
 namespace WyriHaximus\React\AsyncInteropLoop;
 
-use Interop\Async\Loop;
+use AsyncInterop\Loop;
 use React\EventLoop\LoopInterface;
 use React\EventLoop\Timer\TimerInterface;
 

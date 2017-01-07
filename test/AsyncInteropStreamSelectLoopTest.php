@@ -2,7 +2,7 @@
 
 namespace WyriHaximus\React\Tests\AsyncInteropLoop;
 
-use Interop\Async\Loop;
+use AsyncInterop\Loop;
 use React\EventLoop\StreamSelectLoop;
 use React\Tests\EventLoop\AbstractLoopTest;
 use WyriHaximus\React\AsyncInteropLoop\AsyncInteropLoop;

@@ -10,11 +10,11 @@
     "require": {
         "php": "^7.0 || ^5.5",
         "react/event-loop": "^0.4.2",
-        "async-interop/event-loop": "^0.4"
+        "async-interop/event-loop": "^0.5"
     },
     "require-dev": {
         "amphp/loop": "dev-master",
-        "async-interop/event-loop-test": "dev-master",
+        "async-interop/event-loop-test": "^0.5",
         "phpunit/phpunit": "^5.0 || ^4.8"
     },
     "autoload": {

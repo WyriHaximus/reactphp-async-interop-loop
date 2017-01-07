@@ -2,7 +2,7 @@
 
 namespace WyriHaximus\React\AsyncInteropLoop;
 
-use Interop\Async\Loop\DriverFactory;
+use AsyncInterop\Loop\DriverFactory;
 use InvalidArgumentException;
 use React\EventLoop\Factory;
 use React\EventLoop\LoopInterface;

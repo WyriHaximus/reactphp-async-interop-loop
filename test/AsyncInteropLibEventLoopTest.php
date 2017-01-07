@@ -2,7 +2,7 @@
 
 namespace WyriHaximus\React\Tests\AsyncInteropLoop;
 
-use Interop\Async\Loop;
+use AsyncInterop\Loop;
 use React\EventLoop\LibEventLoop;
 use WyriHaximus\React\AsyncInteropLoop\AsyncInteropLoop;
 use WyriHaximus\React\AsyncInteropLoop\ReactDriverFactory;

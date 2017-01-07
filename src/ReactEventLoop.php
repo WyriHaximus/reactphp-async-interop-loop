@@ -2,9 +2,9 @@
 
 namespace WyriHaximus\React\AsyncInteropLoop;
 
-use Interop\Async\Loop\Driver;
-use Interop\Async\Loop\InvalidWatcherException;
-use Interop\Async\Loop\UnsupportedFeatureException;
+use AsyncInterop\Loop\Driver;
+use AsyncInterop\Loop\InvalidWatcherException;
+use AsyncInterop\Loop\UnsupportedFeatureException;
 use InvalidArgumentException;
 use React\EventLoop\LoopInterface;
 use React\EventLoop\Timer\TimerInterface;

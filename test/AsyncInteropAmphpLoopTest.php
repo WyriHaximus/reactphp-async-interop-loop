@@ -3,7 +3,7 @@
 namespace WyriHaximus\React\Tests\AsyncInteropLoop;
 
 use Amp\Loop\LoopFactory;
-use Interop\Async\Loop;
+use AsyncInterop\Loop;
 use WyriHaximus\React\AsyncInteropLoop\AsyncInteropLoop;
 
 class AsyncInteropAmphpLoopTest extends AbstractLoopTestCase

@@ -2,6 +2,6 @@
 
 namespace WyriHaximus\React\AsyncInteropLoop;
 
-use Interop\Async\Loop;
+use AsyncInterop\Loop;
 
 Loop::setFactory(ReactDriverFactory::createFactory());
