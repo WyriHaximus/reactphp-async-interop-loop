@@ -154,8 +154,12 @@ class AsyncInteropLoop implements LoopInterface
         Loop::defer(function () use ($listener) {
             $previousValue = $this->inNextTick;
             $this->inNextTick = true;
-            $listener($this);
-            $this->inNextTick = $previousValue;
+
+            try {
+                $listener($this);
+            } finally {
+                $this->inNextTick = $previousValue;
+            }
         });
     }
 
